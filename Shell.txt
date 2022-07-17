@@ -1,0 +1,72 @@
+1)Создать двух пользователей:
+user1 = User.objects.create_user(username = 'Pavel', email = 'pavel78@mail.ru', password = '1qaz2wsx')
+user2 = User.objects.create_user(username = 'Haccker', email = 'grek@mail.ru', password = '1qaz2wsx')
+user3 = User.objects.create_user(username = 'Ben', email = 'ben99@mail.ru', password = '1qaz2wsx')
+
+2)Создать два объекта модели Author, связанные с пользователями.
+Pavel = Author.objects.create(user = user1)
+Haccer = Author.objects.create(user = user2)
+Ben = Author.objects.create(user = user3)
+
+3)Добавить 4 категории в модель Category.
+category_sport = Category.objects.create(name = 'Спорт')
+category_cinema = Category.objects.create(name = 'Кино') 
+category_games = Category.objects.create(name = 'Игры')  
+category_IT = Category.objects.create(name = 'IT')  
+
+4)Добавить 2 статьи и 1 новость.
+text_article_sport_games = '''2021-й — год киберспорта для всех русскоязычных болельщиков. В октябре клуб Team Spirit победил на чемпионате мира по 
+Dota 2 — The International 10, а в ноябре команда Natus Vincere взяла мэйджор по Counter-Strike: Global Offensive (самый престижный турнир серии). С усп
+ехом участников, которые представляют и Россию, и Украину, поздравили президенты стран, политики, профессиональные спортсмены и звезды шоу-бизнеса. Одна
+ко сами разработчики игр совсем иначе смотрят на виртуальные турниры. Для них чемпионаты — не просто попытка построить новый вид соревнований, который с
+оперничал бы с футболом или Олимпиадой, но и создать устойчивую модель, которая приносила бы деньги. PLAYER ONE совместно с Федерацией компьютерного спорта России рассказывают, 
+как сегодня устроена киберспортивная индустрия и что ее ждет.'''
+
+article_Pavel = Post.objects.create(author = Pavel, type = 'NWS', head = 'Киберспорт', text = text_article_sport_games)
+
+text_article_cinema_sport = """Фильмы про спорт – это не просто история, которая забудется на следующий день, это целое послание, которое может жить в душе человека очень долго. 
+Невозможно остаться равнодушным при просмотре онлайн таких картин, как «Легенда 17», «Лига мечты» или «Никогда не сдавайся». 
+Эти спортивные фильмы доказывают, что если у человека есть настоящая мечта, то перед ним открыты все двери и ничто не сможет его остановить. 
+Ведь именно эта вера и внутренний стержень присутствовали у всех величайших спортсменов. 
+Смотреть онлайн фильмы про них – значит, получить частичку этой мощной энергии и веры в то, что нет ничего невозможного."""
+
+article_Haccer = Post.objects.create(author = Haccer, type = 'ART', head = 'Кино о спорте', text = text_article_cinema_sport)
+
+text_news_IT = """Китайские учёные из Национального исследовательского центра параллельной вычислительной техники и технологий (NRCPC) рассказали, 
+что им удалось создать систему искусственного интеллекта на базе суперкомпьютера производительностью свыше одного экзафлопса. 
+Sunway OceanLight может оперировать 174 трлн параметров (весовыми значениями), что делает её сопоставимой по масштабам с человеческим мозгом."""
+
+news_Pavel = Post.objects.create(author = Pavel, type = 'NWS', head = 'В Китае на экзафлопсном суперкомпьютере создали ИИ масштаба человеческого мозга', text = text_news_IT)
+
+5)Присвоить им категории (как минимум в одной статье/новости должно быть не меньше 2 категорий).
+PostCategory.objects.create(post = article_Pavel, category = category_sport)
+PostCategory.objects.create(post = article_Pavel, category = category_games)
+PostCategory.objects.create(post = article_Haccer, category = category_cinema)
+PostCategory.objects.create(post = article_Haccer, category = category_sport)
+PostCategory.objects.create(post = news_Pavel, category = category_IT)
+
+6)Создать как минимум 4 комментария к разным объектам модели Post (в каждом объекте должен быть как минимум один комментарий).
+comment1 = Comment.objects.create(post = article_Pavel, author = Pavel.user, text = 'Очень хорошая статья!') 
+comment2 = Comment.objects.create(post = article_Haccer, author = Pavel.user, text = 'Мне не понравилось!')
+comment3 = Comment.objects.create(post = news_Pavel, author = Haccer.user, text = 'Хотелось бы почитать продолжение')
+comment4 = Comment.objects.create(post = news_Pavel, author = Pavel.user, text = 'Моя лучшая статья!')
+comment5 = Comment.objects.create(post = news_Ben, author = Ben.user, text = 'Круто!')
+
+7)Применяя функции like() и dislike() к статьям/новостям и комментариям, скорректировать рейтинги этих объектов.
+comment1.like()
+comment3.like()
+news_Pavel.like()
+
+8)Обновить рейтинги пользователей.
+Pavel.update_rating()
+
+9)Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
+Author.objects.all().order_by('-rating').values('user__username', 'rating')[0]
+
+10)Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
+best_news = Post.objects.filter(type='NWS').order_by('-rating')[0]
+'best_news: ' + 'date_in: ' + best_news.time_in.strftime('%d.%m.%Y') + ', username: ' + best_news.author.user.username + ', rating: ' + str(best_news.rating) + ', head: ' + best_news.head
+best_news.preview()
+
+11)Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
+Comment.objects.filter(post=best_news).values('time_in', 'author__username', 'rating', 'text')
